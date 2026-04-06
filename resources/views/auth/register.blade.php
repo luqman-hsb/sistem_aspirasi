@@ -3,15 +3,18 @@
 @section('content')
 <style>
   :root {
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
+    --primary: #10b981;
+    --primary-dark: #059669;
+    --primary-light: #34d399;
     --gray-50: #f8fafc;
     --gray-100: #f1f5f9;
     --gray-200: #e2e8f0;
+    --gray-400: #94a3b8;
     --gray-600: #475569;
     --gray-700: #334155;
     --gray-900: #0f172a;
     --red-500: #ef4444;
+    --green-600: #059669;
   }
 
   * {
@@ -22,7 +25,7 @@
 
   .auth-page {
     min-height: 100vh;
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -30,7 +33,7 @@
   }
 
   .auth-container {
-    max-width: 440px;
+    max-width: 520px;
     width: 100%;
     background: white;
     border-radius: 1.5rem;
@@ -94,7 +97,8 @@
     margin-bottom: 0.5rem;
   }
 
-  .form-control {
+  .form-control,
+  .form-select {
     width: 100%;
     padding: 0.75rem 1rem;
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
@@ -104,13 +108,15 @@
     background-color: var(--gray-50);
     transition: all 0.2s ease;
     color: var(--gray-900);
+    cursor: pointer;
   }
 
-  .form-control:focus {
+  .form-control:focus,
+  .form-select:focus {
     outline: none;
     border-color: var(--primary);
     background-color: white;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
   }
 
   .form-control::placeholder {
@@ -128,7 +134,31 @@
     margin: 0;
   }
 
-  .error-message {
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 560px) {
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+
+  .alert-success {
+    background-color: #ecfdf5;
+    border-left: 4px solid var(--primary);
+    padding: 0.875rem 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+    font-size: 0.8125rem;
+    color: var(--green-600);
+  }
+
+  .alert-error {
     background-color: #fef2f2;
     border-left: 4px solid var(--red-500);
     padding: 0.875rem 1rem;
@@ -164,34 +194,19 @@
   .btn-primary:hover {
     background: var(--primary-dark);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
   }
 
   .btn-primary:active {
     transform: translateY(0);
   }
 
-  .sample-info {
+  .login-link {
     text-align: center;
     margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--gray-200);
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
-    font-size: 0.75rem;
-    color: var(--gray-600);
   }
 
-  .sample-info strong {
-    color: var(--gray-700);
-    font-weight: 600;
-  }
-
-  .register-link {
-    text-align: center;
-    margin-top: 1rem;
-  }
-
-  .register-link a {
+  .login-link a {
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
     font-size: 0.875rem;
     font-weight: 500;
@@ -200,14 +215,20 @@
     transition: color 0.2s ease;
   }
 
-  .register-link a:hover {
+  .login-link a:hover {
     color: var(--primary-dark);
     text-decoration: underline;
   }
 
-  /* Responsive adjustments */
+  hr {
+    margin: 1rem 0;
+    border: none;
+    border-top: 1px solid var(--gray-200);
+  }
+
   @media (max-width: 480px) {
-    .form-control {
+    .form-control,
+    .form-select {
       padding: 0.7rem 0.875rem;
     }
     .btn-primary {
@@ -219,18 +240,25 @@
 <div class="auth-page">
   <div class="auth-container">
     <div class="auth-header">
-      <h1 class="auth-title">Login Siswa</h1>
-      <p class="auth-subtitle">Masukkan NIS dan password Anda</p>
+      <h1 class="auth-title">Daftar Siswa Baru</h1>
+      <p class="auth-subtitle">Lengkapi data diri Anda untuk mendaftar</p>
     </div>
 
+    @if (session('success'))
+      <div class="alert-success">
+        {{ session('success') }}
+      </div>
+    @endif
+
     @if ($errors->any())
-      <div class="error-message">
+      <div class="alert-error">
         {{ $errors->first() }}
       </div>
     @endif
 
-    <form method="POST" action="/login">
+    <form method="POST" action="/register">
       @csrf
+
       <div class="form-group">
         <label class="form-label">NIS</label>
         <input 
@@ -243,29 +271,69 @@
         >
       </div>
 
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tingkat Kelas</label>
+          <select name="tingkat_kelas" class="form-select" required>
+            <option value="">Pilih Tingkat</option>
+            <option value="10" {{ old('tingkat_kelas') == '10' ? 'selected' : '' }}>10</option>
+            <option value="11" {{ old('tingkat_kelas') == '11' ? 'selected' : '' }}>11</option>
+            <option value="12" {{ old('tingkat_kelas') == '12' ? 'selected' : '' }}>12</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nomor Kelas</label>
+          <select name="nomor_kelas" class="form-select" required>
+            <option value="">Pilih Nomor</option>
+            @for($i = 1; $i <= 10; $i++)
+              <option value="{{ $i }}" {{ old('nomor_kelas') == $i ? 'selected' : '' }}>{{ $i }}</option>
+            @endfor
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Jurusan</label>
+        <select name="jurusan" class="form-select" required>
+          <option value="">Pilih Jurusan</option>
+          <option value="DKV" {{ old('jurusan') == 'DKV' ? 'selected' : '' }}>DKV</option>
+          <option value="RPL" {{ old('jurusan') == 'RPL' ? 'selected' : '' }}>RPL</option>
+          <option value="TITL" {{ old('jurusan') == 'TITL' ? 'selected' : '' }}>TITL</option>
+          <option value="TKJ" {{ old('jurusan') == 'TKJ' ? 'selected' : '' }}>TKJ</option>
+        </select>
+      </div>
+
       <div class="form-group">
         <label class="form-label">Password</label>
         <input 
           type="password" 
           name="password" 
           class="form-control" 
-          required
-          placeholder="Masukkan password"
+          required 
+          minlength="6"
+          placeholder="Minimal 6 karakter"
         >
-        @error('password')
-          <p class="field-error">{{ $message }}</p>
-        @enderror
       </div>
 
-      <button type="submit" class="btn-primary">Masuk</button>
+      <div class="form-group">
+        <label class="form-label">Konfirmasi Password</label>
+        <input 
+          type="password" 
+          name="password_confirmation" 
+          class="form-control" 
+          required 
+          minlength="6"
+          placeholder="Masukkan password lagi"
+        >
+      </div>
+
+      <button type="submit" class="btn-primary">Daftar Sekarang</button>
     </form>
 
-    <div class="sample-info">
-      📘 Demo: NIS <strong>12345-12347</strong> &nbsp;|&nbsp; Password: <strong>password</strong>
-    </div>
+    <hr>
 
-    <div class="register-link">
-      <a href="/register">Belum punya akun? Daftar sekarang →</a>
+    <div class="login-link">
+      <a href="/login">Sudah punya akun? Masuk sekarang →</a>
     </div>
   </div>
 </div>

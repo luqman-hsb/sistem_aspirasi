@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 
 class Siswa extends Model
 {
@@ -14,7 +15,7 @@ class Siswa extends Model
     public $incrementing = false;
     protected $keyType = 'int';
 
-    protected $fillable = ['nis', 'kelas'];
+    protected $fillable = ['nis', 'kelas', 'password'];
 
     public function inputAspirasis()
     {

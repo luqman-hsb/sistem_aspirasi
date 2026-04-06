@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return redirect('/login');
+    return view('welcome');
 });
 
 use App\Http\Controllers\Auth\LoginController as AuthController;
@@ -25,6 +25,12 @@ use App\Http\Controllers\AdminController;
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/logout', [AuthController::class, 'logout']);
+
+use App\Http\Controllers\Auth\RegisterController;
+
+// Siswa register routes
+Route::get('/register', [RegisterController::class, 'showRegisterForm']);
+Route::post('/register', [RegisterController::class, 'register']);
 
 // Siswa aspirasi routes
 Route::middleware('web')->group(function () {

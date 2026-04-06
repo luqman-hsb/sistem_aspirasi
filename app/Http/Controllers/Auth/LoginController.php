@@ -21,11 +21,18 @@ class LoginController extends Controller
     {
         $request->validate([
             'nis' => 'required|exists:siswa,nis',
+            'password' => 'required',
         ]);
 
-        session(['siswa_nis' => $request->nis]);
+        $nis = $request->nis;
+        $siswa = Siswa::where('nis', $nis)->first();
 
-        return redirect('/aspirasi');
+        if ($siswa && password_verify($request->password, $siswa->password)) {
+            session(['siswa_nis' => $nis]);
+            return redirect('/aspirasi');
+        }
+
+        return back()->withErrors(['password' => 'Password salah']);
     }
 
     public function logout()
